@@ -5,6 +5,7 @@ import Button from '@material-ui/core/Button';
 import Snackbar from '@material-ui/core/Snackbar';
 import MuiAlert from '@material-ui/lab/Alert';
 import Addcar from './AddCar';
+import EditCar from './EditCar';
 
 
 export default function Carlist() {
@@ -39,6 +40,34 @@ export default function Carlist() {
         }
     } 
 
+    const saveCar = (car) => {
+        fetch('https://carstockrest.herokuapp.com/cars', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(car)
+        })
+        .then( res => fetchData())
+        .catch(err => console.error(err))
+    }
+
+
+    const updateCar = (car, link) => {
+        fetch(link, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(car)
+        })
+        .then( res => fetchData())
+        .catch(err => console.error(err))
+      
+    }
+
+
+
     const columns = [
         {
             Header: 'Brand', accessor: 'brand'
@@ -63,13 +92,20 @@ export default function Carlist() {
             filterable: false,
             width: 100,
             accessor: '_links.self.href',
+            Cell: row => <EditCar updateCar={updateCar} car={row.original} />
+        },
+        {
+            sortable: false,
+            filterable: false,
+            width: 100,
+            accessor: '_links.self.href',
             Cell: row => <Button color="secondary" size="small" onClick={() => deleteCar(row.value)}>Delete</Button>
         }
     ]
 
     return (
         <div>
-            <Addcar />
+            <Addcar saveCar={saveCar} />
             <ReactTable filterable={true} data={cars} columns={columns}/>
             <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
         <Alert onClose={handleClose} severity="success">
